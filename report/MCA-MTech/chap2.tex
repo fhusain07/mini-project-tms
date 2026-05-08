@@ -1,0 +1,23 @@
+%% refer q31.tex
+
+\chapter{Review of Literature Survey}
+This chapter should consists the information regarding already available solutions/methods of whatever you are proposing. \par
+   Another paragraph should explain what are the problems with the solution/methods proposed by others. These methods should be properly supported by proper reference.
+The paper proposes a new and complete discrete-time control system for a load resonant, voltage source inverter for induction heating system without the use of Phase Locked Loop (PLL), based on combined Phase Shift Control and Pulse Frequency Modulation Control (PSC-PFM). Most of the conventional analog control blocks are being replaced by suitable discrete time control algorithms, which essentially caters to resonant current tracking and output power regulation functions. The proposed digital control algorithm leads to precise power control, improved inverter efficiency and excellent noise immunity. The digital control system is simulated with Hardware in loop on DSP Hardware and the results are presented. The Experimental system with IGBT based Voltage Source Inverter (VSI) is being tested for validation of the proposed digital controller for Induction brazing applications.   
+The digital controller block-diagram to control the full-bridge inverter for IH system is shown in Fig. \ref{block}(a). The resonant inverter current is sensed through a CT or Hall sensor. The sensed current is passed through a high speed ADC and the digital samples are taken inside the DSP for processing as a time-domain variable $i_{0}$. The current samples are then passed through a discrete-time phase shifter and attenuator and the resulting output is compared with the original current samples with a comparator to obtain a square wave output waveform, denoted by $v_{sqr}$. This waveform should always lead the resonant current by a phase angle $\beta$ and is calculated from the charge analysis as explained in [pspfmLee]. The phase shifter is essentially a low pass filter with its cut off frequency around five times less than the sampling frequency and around five times greater than the frequency of the inverter current. The discrete time phase shifter is implemented from a following discrete-time equation
+\begin{equation}
+v_{sqr}(n)=v_{sqr}(n-1)+\frac{T_{s}}{\tau}\cdot[i_{0}(n)-v_{sqr}(n-1)]
+\label{ps_ana}
+\end{equation}  
+Where, $n$ is the current time-step,  $T_{s}$ is a sampling time period and $\tau$ is a 
+time constant of the phase-shifter.  
+ \begin{figure}[tbh]
+ \begin{center}
+ \scalebox{0.6}{\includegraphics{./eps_figs/dcp3}}
+ \hspace{0.8cm}
+ \scalebox{0.6}{\includegraphics{./eps_figs/hex}}
+  \vspace{0.5cm}
+ \caption{3D-SVM Four leg Inverter Vector Diagram}
+ \label{fig1}
+  \end{center}
+ \end{figure}

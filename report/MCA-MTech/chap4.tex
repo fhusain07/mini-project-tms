@@ -1,0 +1,34 @@
+%% refer q31.tex
+
+\chapter{Realisation/Implementation of the proposed (name of the system) system}
+   This chapter should consists of minute details of the design and development of the project supported by  diagrams  and design details. Same chapter should also consists of the testing if any necessary and results taken of any data.
+\begin{equation}
+\smallskip \left[ 
+\begin{array}{l}
+i_{c\_0} \\ 
+i_{c\_\alpha} \\ 
+i_{c\_\beta }
+\end{array}
+\right] =\frac{1}{e_{0\alpha \beta }}\cdot \left[ 
+\begin{array}{ccc}
+e_{0} & 0 & e_{\alpha \beta } \\ 
+e_{\alpha } & -\frac{e_{0\alpha \beta }\cdot e_{\beta }}{e_{\alpha \beta }}
+& -\frac{e_{0}\cdot e_{\alpha }}{e_{\alpha \beta }} \\ 
+e_{\beta } & \frac{e_{0\alpha \beta }\cdot e_{\alpha }}{e_{\alpha \beta }} & 
+-\frac{e_{0}\cdot e_{\beta }}{e_{\alpha \beta }}
+\end{array}
+\right] \cdot \smallskip \left[ 
+\begin{array}{l}
+i_{pc} \\ 
+i_{qc} \\ 
+i_{rc}
+\end{array}
+\right]
+\end{equation}
+\begin{figure}[b]
+\centering
+\includegraphics{./eps_figs/apf_block_3d}
+\caption{Block Schematic of an APF}
+\label{fig:apf}
+\end{figure}
+Over half a Century, the concept of electromagnetic induction has been practiced for non contact metal-heating processes in domestic and industrial applications due to its various advantages like energy efficiency and environment cleanliness. The use of solid state inverters for these systems are being standardized due to advent of fast and controllable semiconductor devices such as power MOSFETs, IGBTs, SITs etc. Traditionally, analog control techniques are widely used for controlling the inverters for better efficiency and power regulation. These techniques prone to circuit noise, inflexibility in control and automation, poor reliability due to component degradation etc. Many heating applications need accurate control of temperature along-with accurate control of heating times and electrical power. Due to large-scale developments in high-speed digital processors and systems, it is possible to replace traditional analog controllers with modern integrated digital systems for improved features. This replacement for IH system would lead to flexibility in control, ease of automation, better efficiency, better reliability and increased life.
