@@ -1,23 +1,82 @@
 %% refer q31.tex
 
-\chapter{Review of Literature Survey}
-This chapter should consists the information regarding already available solutions/methods of whatever you are proposing. \par
-   Another paragraph should explain what are the problems with the solution/methods proposed by others. These methods should be properly supported by proper reference.
-The paper proposes a new and complete discrete-time control system for a load resonant, voltage source inverter for induction heating system without the use of Phase Locked Loop (PLL), based on combined Phase Shift Control and Pulse Frequency Modulation Control (PSC-PFM). Most of the conventional analog control blocks are being replaced by suitable discrete time control algorithms, which essentially caters to resonant current tracking and output power regulation functions. The proposed digital control algorithm leads to precise power control, improved inverter efficiency and excellent noise immunity. The digital control system is simulated with Hardware in loop on DSP Hardware and the results are presented. The Experimental system with IGBT based Voltage Source Inverter (VSI) is being tested for validation of the proposed digital controller for Induction brazing applications.   
-The digital controller block-diagram to control the full-bridge inverter for IH system is shown in Fig. \ref{block}(a). The resonant inverter current is sensed through a CT or Hall sensor. The sensed current is passed through a high speed ADC and the digital samples are taken inside the DSP for processing as a time-domain variable $i_{0}$. The current samples are then passed through a discrete-time phase shifter and attenuator and the resulting output is compared with the original current samples with a comparator to obtain a square wave output waveform, denoted by $v_{sqr}$. This waveform should always lead the resonant current by a phase angle $\beta$ and is calculated from the charge analysis as explained in [pspfmLee]. The phase shifter is essentially a low pass filter with its cut off frequency around five times less than the sampling frequency and around five times greater than the frequency of the inverter current. The discrete time phase shifter is implemented from a following discrete-time equation
-\begin{equation}
-v_{sqr}(n)=v_{sqr}(n-1)+\frac{T_{s}}{\tau}\cdot[i_{0}(n)-v_{sqr}(n-1)]
-\label{ps_ana}
-\end{equation}  
-Where, $n$ is the current time-step,  $T_{s}$ is a sampling time period and $\tau$ is a 
-time constant of the phase-shifter.  
- \begin{figure}[tbh]
- \begin{center}
- \scalebox{0.6}{\includegraphics{./eps_figs/dcp3}}
- \hspace{0.8cm}
- \scalebox{0.6}{\includegraphics{./eps_figs/hex}}
-  \vspace{0.5cm}
- \caption{3D-SVM Four leg Inverter Vector Diagram}
- \label{fig1}
-  \end{center}
- \end{figure}
+\chapter{Review of Literature}
+
+This chapter presents a review of existing queue management systems, related research work, and available solutions in the domain of digital queue management. The purpose of the literature review is to understand what has already been done in this area and to identify the gaps that the proposed system aims to address. Queue management has been a subject of study in operations research, computer science, and service industry management for several decades.
+
+\section{Existing Queue Management Solutions}
+
+Several commercial and open-source queue management systems currently exist. These systems vary in complexity, cost, and deployment model. A brief review of the main categories is presented below.
+
+\subsection{Token-Based Manual Systems}
+
+Traditional systems use physical token dispenser machines at the service entrance. Customers receive a printed number and wait for their turn to be announced by staff or displayed on a screen. While these systems reduce crowding at counters, they do not provide real-time status updates. Customers must remain near the counter area and have no information about the estimated waiting time. This approach is still widely used in government offices and hospitals in developing countries.
+
+\subsection{SMS-Based Notification Systems}
+
+Some advanced commercial systems send SMS notifications to customers when their token is about to be called. These systems allow customers to wait remotely and return to the service counter only when needed. However, they require mobile network connectivity, incur per-message costs, and depend on customers providing a valid mobile number. They are typically deployed in large private hospitals and premium banking institutions.
+
+\subsection{Cloud-Based Queue Management Platforms}
+
+Modern Software-as-a-Service (SaaS) platforms such as Qminder, Qmatic, and Skiplino offer comprehensive queue management with web-based dashboards, detailed analytics, appointment scheduling, multi-branch support, and customer feedback collection. These platforms are powerful and feature-rich but require a paid subscription, reliable internet connectivity, and technical expertise to configure. They are unsuitable for small institutions or offline environments.
+
+\subsection{Custom Web-Based Systems}
+
+Several research papers have proposed custom web-based queue management systems built on technologies such as PHP, MySQL, Java, Python, and Node.js. These systems are designed for specific use cases such as hospital OPD queues, bank service counters, or university administration desks. They offer cost-free alternatives to commercial products but often lack modern user interface design and real-time capabilities.
+
+\section{Related Work}
+
+Several research works in the domain of digital queue management are reviewed in this section.
+
+Shivali Garg and Vishal Shrivastava~\cite{garg2019} proposed a digital token-based system for hospital OPD management using PHP and MySQL. Their system allowed patients to register online and receive a virtual token. The results showed a significant reduction in average waiting time. However, the system lacked a real-time display and required manual page refreshes to check queue status, limiting its usability in a dynamic environment.
+
+Mohammed Al-Azzawi et al.~\cite{alazzawi2020} designed a web-based queue management system for government service centers using Node.js and MongoDB. The system incorporated real-time WebSocket communication for instant queue status updates. While effective, the implementation was complex and required a stable internet connection, making it less suitable for offline or local-network deployments.
+
+Priya Sharma and Rohan Mehta~\cite{sharma2021} developed a mobile queue management application for Android using Firebase as the backend. The system allowed users to join a queue remotely and receive push notifications when their token was called. While innovative, it required a smartphone and the Firebase cloud service, limiting accessibility for users without mobile devices or in areas with poor connectivity.
+
+Amit Desai et al.~\cite{desai2022} proposed a queue management system using ReactJS and Node.js. Their system included an admin panel for managing token flow and a customer-facing display board. The project demonstrated the effectiveness of modern JavaScript frameworks for building interactive queue management interfaces. The work closely aligns with the approach taken in this project, with the key difference being the use of ASP.NET Core and PostgreSQL instead of Node.js and MongoDB.
+
+\section{Comparison of Existing Systems}
+
+Table~\ref{tab:comparison} presents a comparative analysis of the reviewed queue management solutions based on key parameters relevant to the proposed system.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{System} & \textbf{Technology} & \textbf{Real-Time} & \textbf{Admin Panel} & \textbf{Cost} \\
+        \hline
+        Manual Token Machine & Physical Hardware & No & No & Low \\
+        \hline
+        SMS-Based System & Mobile Network & Partial & Limited & Medium \\
+        \hline
+        Qminder / Qmatic & Cloud SaaS & Yes & Yes & High \\
+        \hline
+        OPD System \cite{garg2019} & PHP, MySQL & No & Yes & Free \\
+        \hline
+        WebSocket System \cite{alazzawi2020} & Node.js, MongoDB & Yes & Yes & Free \\
+        \hline
+        Android App \cite{sharma2021} & Android, Firebase & Yes & Limited & Free \\
+        \hline
+        React-Node System \cite{desai2022} & ReactJS, Node.js & Yes & Yes & Free \\
+        \hline
+        \textbf{Proposed System} & \textbf{React, .NET, PostgreSQL} & \textbf{Yes} & \textbf{Yes} & \textbf{Free} \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of Existing Queue Management Systems}
+    \label{tab:comparison}
+\end{table}
+
+\section{Research Gap}
+
+Based on the literature review, the following gaps were identified:
+
+\begin{itemize}
+    \item Most free and open-source systems lack a clean, modern interface that is intuitive for non-technical users.
+    \item Systems built on cloud platforms have internet dependency and subscription costs that are unsuitable for small organizations.
+    \item Many existing systems are designed for a specific domain (hospital, bank) and are not generic enough for reuse.
+    \item Few systems demonstrate the use of the ASP.NET Core and ReactJS combination, which is increasingly popular in modern enterprise development.
+    \item Real-time updates in most open-source systems are either absent or require complex WebSocket infrastructure.
+\end{itemize}
+
+The proposed \textbf{Smart Queue Management System} addresses these gaps by providing a simple, locally hosted, full-stack web application that is generic, cost-free, beginner-friendly, and easy to understand and extend. The system uses a polling approach for near-real-time updates, which is simpler to implement and maintain than WebSocket-based solutions while being sufficient for the requirements of a local queue management scenario.

@@ -2,9 +2,66 @@
 %% include the topic name as per u r project in appendix
 
 \appendix
-\chapter{Important Terms}
-To compare quantitatively ..... techniques, following a set of criteria are established to ...
+\chapter{API Reference}
 
+This appendix provides a complete reference for all REST API endpoints exposed by the Smart Queue Management System backend. All endpoints are prefixed with \texttt{http://localhost:5000}. Request and response bodies are in JSON format.
 
-\chapter{Maths}
-.....
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Method} & \textbf{Endpoint} & \textbf{Request Body} & \textbf{Description} \\
+        \hline
+        POST & /api/token/generate & \{customerName\} & Generate a new queue token \\
+        \hline
+        GET & /api/token/all & None & Get all tokens in order \\
+        \hline
+        GET & /api/token/current & None & Get the active token \\
+        \hline
+        GET & /api/token/stats & None & Get waiting, active, completed count \\
+        \hline
+        POST & /api/token/next & None & Call the next waiting token \\
+        \hline
+        PUT & /api/token/complete/\{id\} & None & Mark a token as completed \\
+        \hline
+        DELETE & /api/token/reset & None & Delete all tokens \\
+        \hline
+        POST & /api/admin/login & \{username, password\} & Admin authentication \\
+        \hline
+    \end{tabular}
+    \caption{Complete REST API Reference}
+    \label{tab:apiref}
+\end{table}
+
+\chapter{Database Schema}
+
+The following SQL script can be used to manually create the database tables for the Smart Queue Management System. Under normal operation, the tables are created automatically by Entity Framework Core when the backend application starts.
+
+\begin{verbatim}
+-- Create the database
+CREATE DATABASE queue_management;
+
+-- Connect to the database
+\c queue_management
+
+-- Create Admins table
+CREATE TABLE IF NOT EXISTS "Admins" (
+    "Id"       SERIAL PRIMARY KEY,
+    "Username" VARCHAR(100) NOT NULL UNIQUE,
+    "Password" VARCHAR(100) NOT NULL
+);
+
+-- Create Tokens table
+CREATE TABLE IF NOT EXISTS "Tokens" (
+    "Id"           SERIAL PRIMARY KEY,
+    "TokenNumber"  INT          NOT NULL,
+    "CustomerName" VARCHAR(200) NOT NULL,
+    "Status"       VARCHAR(50)  NOT NULL DEFAULT 'Waiting',
+    "CreatedAt"    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- Seed default admin user
+INSERT INTO "Admins" ("Username", "Password")
+VALUES ('admin', 'admin123')
+ON CONFLICT ("Username") DO NOTHING;
+\end{verbatim}

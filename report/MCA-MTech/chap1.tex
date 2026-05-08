@@ -1,23 +1,82 @@
 %% refer q31.tex
 
 \chapter{Introduction}
-In high power systems, the multilevel inverters can appropriately replace the existing system that uses traditional multi-pulse converters without the need of the transformers. All the three multi-level inverter topologies (diode clamped, flying capacitors, cascaded multi level inverter) can be used in reactive power compensation without having the voltage unbalance problem. But the cascaded multi level inverter uses simple H-Bridge configurations which are connected in series, utilizes fuel cells, solar cells and biomass energy as DC sources. With the help of a transformer having one primary winding and several secondary windings, the cascade H-bridge configuration can be used in back-to-back intertie application. This structure is therefore well suited for an ac power supply in vehicle system utilities. The key features of a multi-level structure are as follows:
-1. Harmonic content decreases as the number of levels increases.
-2. Here switching losses can be avoided and higher efficiency is obtained.  Without an increase in the rating of an individual device, the output voltage and power can be increased.
-3. Multi-level inverters can easily be applied for high power applications such as large motor drivers and utility supply.
-Because of the key feature, they have become indispensable in high power and high voltage applications.
 
+In today's fast-paced world, managing queues efficiently has become a critical requirement for service-based organizations. Traditional manual queue management methods in hospitals, banks, government offices, and service centers lead to long waiting times, customer frustration, and poor resource utilization. People are required to stand in physical queues for extended periods without any knowledge of their waiting time or position, which results in a poor service experience.
 
-\section{Aim of the project}
-1. The Basic aim of the project is to analyze THD (Total Harmonic Distortion) at various levels of inverter.
-2. To design an efficient cascaded inverter.
+The \textbf{Smart Queue Management System} is a web-based application designed to digitize and automate the process of queue management. The system allows customers to generate digital tokens from any browser, view their queue position in real time, and track the currently serving token. On the administrative side, the system provides a dashboard for service staff to manage token flow, call the next customer, and monitor the overall queue status with live statistics.
 
-\section{Organization of the report}
-Report consists of circuit diagram and various techniques to implement multilevel inverter. Chapter 1 gives introduction and basic aim of the project. Chapter 3 gives information about the circuit diagram and analysis. Chapter 4 gives the results and discussion. We have concluded on the basis of result in chapter 5.
-\subsection{nilesh}
-\begin{figure}[h]
-	\centering
-\includegraphics{nil.jpg}
-\caption{Block digram}
-	\label{bbb}
-\end{figure}
+This project is developed using \textbf{ReactJS} for the frontend user interface, \textbf{ASP.NET Core Web API (.NET 10)} for the backend REST API, and \textbf{PostgreSQL} as the relational database. The system is designed to run entirely on a local network, making it suitable for small to medium-scale service centers that do not require a cloud-based infrastructure.
+
+\section{Background}
+
+Queue management is one of the oldest operational challenges in service industries. Long before digital technology, businesses used manual ticketing systems where customers received a paper token and waited for their number to be called. While this reduced crowding at service counters, it still lacked transparency about estimated waiting times and real-time status updates. Customers had no way of knowing how many people were ahead of them or how long the wait would be.
+
+With the widespread adoption of computers and the internet, digital queue management solutions began to emerge. Modern commercial systems can display queue status on large screens, send SMS notifications, and allow online pre-booking. However, many of these solutions are expensive, require cloud infrastructure, and are too complex for small institutions to deploy and maintain.
+
+This project addresses that gap by providing a simple, locally hosted, full-stack web application that is easy to use, easy to understand, and easy to maintain. The entire system can be set up on a single computer and accessed by users and administrators through any web browser on the local network.
+
+\section{Problem Statement}
+
+Traditional queue management suffers from the following issues:
+
+\begin{itemize}
+    \item Customers must physically wait in long queues, causing discomfort and frustration.
+    \item There is no real-time visibility into queue position or estimated waiting time.
+    \item Manual record-keeping by staff is error-prone and time-consuming.
+    \item Peak hours cause severe congestion and poor service delivery.
+    \item There is no digital record of service history for tracking or analysis.
+    \item Commercial digital solutions are too expensive for small organizations.
+\end{itemize}
+
+These problems result in customer dissatisfaction, inefficient staff utilization, and poor overall service quality. A digital queue management system can solve all of these issues by automating the token generation, tracking, and service flow process.
+
+\section{Aim of the Project}
+
+The primary aim of this project is to develop a web-based \textbf{Smart Queue Management System} that:
+
+\begin{enumerate}
+    \item Allows customers to generate digital queue tokens by entering their name.
+    \item Displays the real-time status of the queue including the currently serving token.
+    \item Provides an admin dashboard to manage the flow of tokens efficiently.
+    \item Enables admin to call the next token, complete a token, or reset the queue.
+    \item Shows live statistics such as waiting count, active token, and completed count.
+\end{enumerate}
+
+\section{Objectives}
+
+The specific objectives of this project are:
+
+\begin{itemize}
+    \item To design and develop a simple, beginner-friendly web application using modern technologies.
+    \item To implement a RESTful API backend using ASP.NET Core Web API with Entity Framework Core.
+    \item To design a PostgreSQL relational database to store token and admin data.
+    \item To build a responsive ReactJS frontend with multiple pages for user and admin roles.
+    \item To implement real-time queue status updates using a polling mechanism.
+    \item To demonstrate a working queue management flow from token generation to completion.
+\end{itemize}
+
+\section{Scope of the Project}
+
+The Smart Queue Management System is scoped for local network deployment and covers the following functional areas:
+
+\begin{itemize}
+    \item \textbf{User Module:} Token generation and queue status viewing for general users.
+    \item \textbf{Admin Module:} Login, token management, and queue reset for administrators.
+    \item \textbf{Dashboard Module:} Live statistics of the queue state visible to all users.
+\end{itemize}
+
+The system does not include SMS or email notifications, appointment pre-booking, multi-counter support, or JWT-based authentication in the current version. These features can be added as future enhancements and are described in Chapter 5.
+
+\section{Organization of the Report}
+
+This report is organized into the following chapters:
+
+\begin{itemize}
+    \item \textbf{Chapter 1} presents the introduction, background, problem statement, aims, objectives, and scope of the project.
+    \item \textbf{Chapter 2} provides a review of existing literature and related work in the area of queue management systems, along with a comparison of existing solutions.
+    \item \textbf{Chapter 3} describes the proposed system design, including system architecture, technology stack, database design, module design, and API design.
+    \item \textbf{Chapter 4} covers the implementation details of the frontend, backend, and database components, along with testing results.
+    \item \textbf{Chapter 5} presents the conclusion drawn from the project and discusses the scope for future enhancements.
+    \item \textbf{Appendix} provides additional reference material including the complete API documentation and database schema.
+\end{itemize}

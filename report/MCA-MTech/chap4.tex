@@ -1,34 +1,172 @@
 %% refer q31.tex
 
-\chapter{Realisation/Implementation of the proposed (name of the system) system}
-   This chapter should consists of minute details of the design and development of the project supported by  diagrams  and design details. Same chapter should also consists of the testing if any necessary and results taken of any data.
+\chapter{Implementation}
+
+This chapter describes the implementation details of the Smart Queue Management System. The system is developed in three integrated parts: the ReactJS frontend, the ASP.NET Core Web API backend, and the PostgreSQL database. The implementation follows the design described in Chapter 3.
+
+\section{Development Environment}
+
+The system was developed and tested on a local machine. Table~\ref{tab:devenv} lists the complete development environment configuration.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Component} & \textbf{Details} \\
+        \hline
+        Operating System & Windows 11 \\
+        \hline
+        Frontend Development Server & http://localhost:3000 (Vite) \\
+        \hline
+        Backend API Server & http://localhost:5000 (ASP.NET Core) \\
+        \hline
+        Database & PostgreSQL (local installation) \\
+        \hline
+        Frontend Runtime & Node.js v18 or higher \\
+        \hline
+        Backend Runtime & .NET 10 SDK \\
+        \hline
+        Code Editor & Visual Studio Code \\
+        \hline
+    \end{tabular}
+    \caption{Development Environment Configuration}
+    \label{tab:devenv}
+\end{table}
+
+\section{Database Implementation}
+
+The PostgreSQL database is named \textbf{queue\_management}. It contains two tables: Admins and Tokens. The tables are automatically created when the backend application starts for the first time using Entity Framework Core's \texttt{EnsureCreated()} method called in \texttt{Program.cs}. This eliminates the need to run migration commands manually. A default administrator account (username: \textit{admin}, password: \textit{admin123}) is seeded into the Admins table automatically if no admin record exists.
+
+The database connection string is stored in the \texttt{appsettings.json} configuration file in the following format:
+
+\begin{verbatim}
+Host=localhost;Database=queue_management;
+Username=postgres;Password=your_password
+\end{verbatim}
+
+The two Entity Framework Core model classes (\texttt{Admin.cs} and \texttt{Token.cs}) are simple C\# classes with properties corresponding to the database columns. The \texttt{AppDbContext} class inherits from \texttt{DbContext} and registers both models as \texttt{DbSet} properties, enabling LINQ-based querying from the controllers.
+
+\section{Backend Implementation}
+
+The backend is implemented as an ASP.NET Core Web API project targeting .NET 10. The project follows a simple three-directory structure with Models, Data, and Controllers. The entry point is the \texttt{Program.cs} file which configures all services and the HTTP request pipeline.
+
+\subsection{Token Generation Logic}
+
+When a new token is requested, the backend queries the Tokens table for the record with the highest existing token number. The new token number is calculated as:
+
 \begin{equation}
-\smallskip \left[ 
-\begin{array}{l}
-i_{c\_0} \\ 
-i_{c\_\alpha} \\ 
-i_{c\_\beta }
-\end{array}
-\right] =\frac{1}{e_{0\alpha \beta }}\cdot \left[ 
-\begin{array}{ccc}
-e_{0} & 0 & e_{\alpha \beta } \\ 
-e_{\alpha } & -\frac{e_{0\alpha \beta }\cdot e_{\beta }}{e_{\alpha \beta }}
-& -\frac{e_{0}\cdot e_{\alpha }}{e_{\alpha \beta }} \\ 
-e_{\beta } & \frac{e_{0\alpha \beta }\cdot e_{\alpha }}{e_{\alpha \beta }} & 
--\frac{e_{0}\cdot e_{\beta }}{e_{\alpha \beta }}
-\end{array}
-\right] \cdot \smallskip \left[ 
-\begin{array}{l}
-i_{pc} \\ 
-i_{qc} \\ 
-i_{rc}
-\end{array}
-\right]
+\text{NewTokenNumber} = \text{MaxExistingTokenNumber} + 1
 \end{equation}
-\begin{figure}[b]
-\centering
-\includegraphics{./eps_figs/apf_block_3d}
-\caption{Block Schematic of an APF}
-\label{fig:apf}
-\end{figure}
-Over half a Century, the concept of electromagnetic induction has been practiced for non contact metal-heating processes in domestic and industrial applications due to its various advantages like energy efficiency and environment cleanliness. The use of solid state inverters for these systems are being standardized due to advent of fast and controllable semiconductor devices such as power MOSFETs, IGBTs, SITs etc. Traditionally, analog control techniques are widely used for controlling the inverters for better efficiency and power regulation. These techniques prone to circuit noise, inflexibility in control and automation, poor reliability due to component degradation etc. Many heating applications need accurate control of temperature along-with accurate control of heating times and electrical power. Due to large-scale developments in high-speed digital processors and systems, it is possible to replace traditional analog controllers with modern integrated digital systems for improved features. This replacement for IH system would lead to flexibility in control, ease of automation, better efficiency, better reliability and increased life.
+
+If no tokens exist in the database, the first token number is assigned as 1. The new token is then saved to the database with status set to ``Waiting'' and the current UTC timestamp stored in the \texttt{CreatedAt} field.
+
+\subsection{Call Next Token Logic}
+
+When the admin triggers the Call Next Token action, the following operations are performed in sequence within a single database transaction:
+
+\begin{enumerate}
+    \item The system queries for the currently Active token (if any) and sets its status to ``Completed''.
+    \item The system queries for the token with the lowest token number and status ``Waiting''.
+    \item If a waiting token is found, its status is updated to ``Active''.
+    \item Both changes are persisted to the database using \texttt{SaveChangesAsync()}.
+    \item If no waiting token exists, a message is returned indicating the queue is empty.
+\end{enumerate}
+
+\subsection{Admin Authentication}
+
+Admin authentication is implemented as a simple database lookup. When the admin submits the login form, the backend queries the Admins table for a record where both \texttt{Username} and \texttt{Password} match the provided values. If a match is found, an HTTP 200 OK response with a success message is returned. If not, an HTTP 401 Unauthorized response is returned. On the frontend, a successful login stores an \texttt{isAdmin} flag in the browser's \texttt{localStorage} to maintain the session.
+
+\subsection{CORS Configuration}
+
+Since the ReactJS frontend runs on port 3000 and the .NET backend runs on port 5000, Cross-Origin Resource Sharing (CORS) must be explicitly enabled. The backend is configured with a permissive CORS policy that allows requests from any origin, any HTTP method, and any header. This makes local development straightforward without requiring additional proxy configuration.
+
+\section{Frontend Implementation}
+
+The frontend is implemented as a ReactJS application using Vite as the build tool. The application consists of five pages connected using React Router DOM. All API calls are centralized in a single \texttt{api.js} file in the services directory, using Axios for HTTP communication.
+
+\subsection{Home Page}
+
+The Home Page is the landing page of the application. It displays the system title and a brief description. It provides two primary navigation buttons: one to the Generate Token page and one to the Queue Status page. It also features three feature cards highlighting the main benefits of the system.
+
+\subsection{Generate Token Page}
+
+The Generate Token page contains a simple form where the user enters their full name. On form submission, an HTTP POST request is sent to the \texttt{/api/token/generate} endpoint with the customer name in the request body. If the request is successful, the newly generated token number is displayed prominently on screen along with the customer name and the initial status badge showing ``Waiting''. If the name field is empty, a validation error message is shown before sending the request.
+
+\subsection{Queue Status Page}
+
+The Queue Status page displays real-time queue information. It shows:
+\begin{itemize}
+    \item Three statistics cards showing the count of Waiting, Active, and Completed tokens.
+    \item A large central card displaying the token number and customer name of the currently Active token.
+    \item A note indicating that the page auto-refreshes every 5 seconds.
+\end{itemize}
+
+The auto-refresh is implemented using the \texttt{setInterval} function inside a React \texttt{useEffect} hook. Every five seconds, the page calls both the \texttt{/api/token/current} and \texttt{/api/token/stats} endpoints and updates the displayed data. The interval is cleared using the cleanup function returned from \texttt{useEffect} to prevent memory leaks.
+
+\subsection{Admin Login Page}
+
+The Admin Login page contains a username and password input form. On successful login, the server returns an HTTP 200 response and the frontend stores \texttt{isAdmin = true} in \texttt{localStorage}. The user is then redirected to the Admin Dashboard using React Router's \texttt{useNavigate} hook. If the credentials are incorrect, an error message is displayed. If the admin tries to access the dashboard URL directly without logging in, they are redirected back to the login page.
+
+\subsection{Admin Dashboard Page}
+
+The Admin Dashboard is the control center for queue management. It is accessible only to authenticated administrators. The dashboard displays:
+\begin{itemize}
+    \item Live statistics cards (waiting, active, completed counts).
+    \item The currently serving token number and customer name.
+    \item A full-width table of all tokens with token number, customer name, status badge, creation time, and a Complete action button.
+    \item A ``Call Next Token'' button and a ``Reset Queue'' button in the control panel.
+    \item A ``Logout'' button that clears the \texttt{isAdmin} flag and redirects to the login page.
+\end{itemize}
+
+\section{Testing}
+
+The system was tested manually by performing the following test scenarios to verify correctness of all features. Table~\ref{tab:testcases} summarizes the test cases and their outcomes.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Test Case} & \textbf{Expected Result} & \textbf{Status} \\
+        \hline
+        Generate token with valid name & Token created with Waiting status & Pass \\
+        \hline
+        Generate token with empty name & Validation error displayed & Pass \\
+        \hline
+        View queue status page & Active token and stats displayed & Pass \\
+        \hline
+        Queue status auto-refresh & Data updates every 5 seconds & Pass \\
+        \hline
+        Admin login with valid credentials & Redirect to dashboard & Pass \\
+        \hline
+        Admin login with wrong password & Error message displayed & Pass \\
+        \hline
+        Direct access to dashboard without login & Redirect to login page & Pass \\
+        \hline
+        Call next token & Next waiting token set to Active & Pass \\
+        \hline
+        Call next when queue is empty & Appropriate message displayed & Pass \\
+        \hline
+        Complete a token manually & Token status changed to Completed & Pass \\
+        \hline
+        Reset queue & All token records deleted & Pass \\
+        \hline
+        Token numbers are sequential & Each new token gets next number & Pass \\
+        \hline
+    \end{tabular}
+    \caption{Test Cases and Results}
+    \label{tab:testcases}
+\end{table}
+
+\section{Results}
+
+The system successfully demonstrates a complete digital queue management workflow. The key results observed during testing are as follows:
+
+\begin{itemize}
+    \item Tokens are generated instantly with correct sequential numbering starting from 1.
+    \item The queue status page updates automatically without requiring a manual browser refresh.
+    \item The admin dashboard accurately reflects the real-time state of the queue at all times.
+    \item The system gracefully handles edge cases such as calling next when no waiting tokens exist.
+    \item Database tables are automatically created on first run, simplifying the deployment setup.
+    \item The overall system response time is fast, with API responses typically under 100 milliseconds on a local network.
+    \item The interface is clean and usable on both desktop and mobile browsers due to responsive CSS.
+\end{itemize}

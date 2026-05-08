@@ -1,187 +1,202 @@
-\chapter{Theory of Proposed architecture/system/Method}
+\chapter{System Design}
 
-Study the \LaTeX\ code in chapt3.tex.
-It will help you for figure insertion, math using \LaTeX\ .\, Table creation,
-citations, labels.
-\section{Homomorphic filter} 
- %Morphological filters
-By performing simultaneous gray level range compression and contrast enhancement on illumination reflection model,one can improve the appearance of an image by designing a frequency domain procedure~\cite{man87}.
-An image $f(x,y)$ can be expressed as a product of illumination and reflection components~\cite{sam09}.
+This chapter describes the complete design of the Smart Queue Management System. It covers the overall system architecture, the technology stack, the database design, the module design, the token status flow, and the API design. The system follows a three-tier client-server architecture with a clear separation between the presentation layer, the business logic layer, and the data layer.
 
- % NOTE2: pl.refer that  $ $ sign for mathamatical term in the text in line.
+\section{System Architecture}
 
-\begin{equation}
-f(x,y)=i(x,y)r(x,y)
-\end{equation}
-
-% NOTE3:- \[ f(x,y)=i(x,y)r(x,y) \]
-% this has the same effect as above code i.e
-%  \begin{equation}
-% f(x,y)=i(x,y)r(x,y)
-% \end{equation}
-
-here $ i(x,y) $ is  illumination component and  $ r(x,y) $ reflection component.\\
-
-% NOTE 4: Observe the  \\  at the end
-% this will help the latex to go to new line.
-
-
-Fourier transform of the product of two functions is not separable, So we can define shown in as shown in Equation~\ref{fourier}
-
-\begin{equation}
-F.T[z(x,y)]=F.T[ln f(x,y)]=F.T[ln i(x,y)]+F.T[ln r(x,y)]
-\label{fourier}
-\end{equation}
-
-\begin{equation}
-Z(u,v)=F_{i}(u,v)+F_{r}(u,v)
-\end{equation}
-
-
- \begin{equation}
-  S(u,v)=H(u,v)Z(u,v)
- \end{equation}
-
-% Note5: Observe the following code ,
-% here for the equatins \[                      \] brackets are used
-% this will help you if you are not interested in numbering of the equations.
-% observe the effect in output pdf file.
-
-
- where $S(u,v)$ Fourier Transform of result  and $H(u,v)$ Filter function
-
-      \[S(u,v)=H(u,v)F_{i}(u,v)+H(u,v)F_{r}(u,v)\]
-
-      \[s(x,y)=F^{-1}[S(u,v)]\]
-
-      \[s(x,y)=F^{-1}[H(u,v)F_{i}(u,v)]+F^{-1}[H(u,v)F^{r}(u,v)]\]
-
-      Say
-      \[i'(x,y)=F^{-1}[H(u,v)F_{i}(u,v)]\]
-
-       \[r'(x,y)=F^{-1}[H(u,v)F_{r}(u,v)]\]
-
-       Hence,
-       \[s(x,y)=i'(x,y)+r'(x,y)\]
-
-       Therefore,
-       Let $g(x,y)$ be the inverse exponential operation
-
-       \[g(x,y)=e^{s(x,y)}\]
-
-      \[g(x,y)=e^{i'(x,y)}e^{r'(x,y)}\]
-
-       \[g(x,y)=i_{0}(x,y)+r_{0}(x,y)\]
-
-       where $i_{0}(x,y)=e^{i'(x,y)}$ and $r_{0}(x,y)=e^{r'(x,y)}$
-
-
-%  Note 6:following five lines are responsible for graphics insertion.
-
-\begin{figure}[h]
-	\centering
-\includegraphics{blockdig.eps}
-\caption{Block digram}
-	\label{bbb}
-\end{figure}
-\begin{figure}[h]
-	\centering
-\includegraphics{test.eps}
-\caption{Test}
-	\label{ab}
-\end{figure}
-
-\begin{itemize}
-\item This approach is used for homomorphic filtering as shown in figure~\ref{bbb} and figure~\ref{ab}.. The key to the approach is separation of the illumination and reflection components. Between them $i(x,y)$ contributes to the low frequency since illumination is more or less uniform and $r(x,y)$ is high frequency component as it tends to vary abruptly at junctions of dissimilar objects.
-\item $H(u,v)$ is the homomorphic filtering function.A typical homomorphic filter $H(u,v)$ is as shown in figure below. Generally, $\gamma_L<1$ and$\gamma_H>1$, $H(u,v)$ tends to decrease the contribution made by low frequencies and amplify the contribution made by high frequency.
-\end{itemize}
-
-%NOTE 7: The following five lines are responsible for graphics insertion.
-% Also note that in caption q312 is the figure number and after : put name of the figure.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics{graph.eps}
-\caption{Transfer function}
-\label{fig:graph}
-\end{figure}
-
-\section{Morphological Filters}
-To understand morphological filters we first need to understand the operations dilation, erosion,opening  and  closing.
-
-The motor hown in driver controller is shown in figure~\ref{mdd}
-\subsection{Dilation}
-With $A$ and $B$ as sets in $Z^{2}$,the dilation of $A$ and $B$ denoted as $A\oplus B$ is defined as
-
-\[A\oplus B={Z/(\hat{B}_{z}\cap A \neq \phi}\]
-
-Equation obtained by reflection of $B$ about origin and shifting reflection by $ z$ .
-$B$  and $A$ should overlap by at least one element.Set $B$ is the structuring element in all morphological operations.\\
- \textbf{Erosion} For sets $A$ and $B$ in $Z^{2}$,the erosion of $A$ by $B$ denoted as $A\ominus B$ is defined as
-
-\[ A\ominus B={Z/(B_{z}\subseteq A )} \]
-This equation indicates that the erosion of $A$ by $B$ is the set of all points $z$ such that $B$,translated by $z$ is contained in $A$ Erosion shrinks an image.
-
-\subsection{Opening and closing}
-
-Opening smooths the contour of an object.
- Closing also tends to smooth sections of contours but it generally fuses narrow breaks and long thin gulfs,eliminates small holes and fills gaps in contour.
-Opening is denoted by $A\circ B$
-
-\[A\circ B=(A\ominus B)\oplus B\]
-
-  i.e. Erosion followed by dilation
- Closing is denoted by $A\bullet B$
-
- \[A\bullet B=(A\oplus B)\ominus B\]
-
- i.e Dilation followed by erosion.
- Morphological operations can be used to construct filters.
+The Smart Queue Management System is designed using a three-tier client-server architecture consisting of the following layers:
 
 \begin{enumerate}
-	\item Suppose we have a binary image which is corrupted by noise.The noise manifests itself as light elements on a dark background and dark elements on  light components of image .
-	\item A morphological filter consisting of opening followed by closing operation eliminates the noise and its effect on the image while distorting it as little as possible.
-	\item The steps are as follows
-
-\begin{itemize}
-	\item We have a structuring element
-	\item We erode A with the structuring element.The background noise gets eliminated in the erosion stage of opening because in this case all noise components are physically smaller then the structuring element.
-For e.g. in some images the size of the noise elements actually increases.This is because these elements are inner boundaries that should increase in size as object is eroded.
-\item This enlargement is countered by performing dilation.The noise components in the image are reduced in size or deleted completely.
-The two operations constitute ~``opening'' A by B.
-\item Net effect of opening is to eliminate all noise components in both the background and image itself.However,new gaps may be formed.
-\item To counter this effect we perform dilation on the opening.Sometimes most breaks are restored but ridges are thickened.
-This thickening is countered by erosion.
-\item The above two steps are the closing operation.
-\end{itemize}
-
+    \item \textbf{Presentation Layer (Frontend):} The user interface is built using ReactJS. It handles all user interactions, including token generation, queue status display, admin login, and the admin dashboard. The frontend runs as a Single Page Application (SPA) in the browser on port 3000.
+    \item \textbf{Business Logic Layer (Backend):} The API is built using ASP.NET Core Web API (.NET 10). It processes all HTTP requests from the frontend, enforces business rules (such as sequential token numbering and status transitions), and communicates with the database. The backend runs on port 5000.
+    \item \textbf{Data Layer (Database):} PostgreSQL is used as the relational database to store admin credentials and all queue token records persistently. Entity Framework Core (EF Core) is used as the Object-Relational Mapper (ORM) to interact with the database from the backend.
 \end{enumerate}
-Hence the final result is remarkably clean of noise specs.
- Disadvantage of this filter is that some of the point ridges might not be fully repaired and can contain breaks. \\
 
-%Note 8: If u want to insert a table your editor will help u to create %a required code for that
-% for example refer the following
-% go to the wizard menu and use Quick Tabular
+The frontend communicates with the backend exclusively through HTTP REST API calls using the Axios library. The backend connects to the PostgreSQL database using EF Core with the Npgsql provider. CORS (Cross-Origin Resource Sharing) is enabled on the backend to allow the frontend (port 3000) to send requests to the backend (port 5000).
 
-The Table~\ref{tab:listOfStudents} is used to explain how table can be created in Latex and also observe how table in the document can be referred  in text.
+\section{Technology Stack}
 
+Table~\ref{tab:techstack} lists all technologies and tools used in the development of the Smart Queue Management System along with their purpose.
 
 \begin{table}[htbp]
-	\centering
-		\begin{tabular}{|c|c|c|}
-			\hline Roll No & Name of the student & marks \\
-			\hline 1 & Sonal & 95 \\
-			\hline 2 & Komal & 97 \\
-			\hline
-\end{tabular}
-\caption{list of students}
-\label{tab:listOfStudents}
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Component} & \textbf{Technology} & \textbf{Purpose} \\
+        \hline
+        Frontend Framework & ReactJS (v19) & Building the user interface \\
+        \hline
+        HTTP Client & Axios & Sending API requests from frontend \\
+        \hline
+        Client-Side Routing & React Router DOM (v7) & Multi-page navigation in SPA \\
+        \hline
+        Frontend Build Tool & Vite & Development server and bundler \\
+        \hline
+        Backend Framework & ASP.NET Core Web API & REST API server (.NET 10) \\
+        \hline
+        ORM & Entity Framework Core & Database access from backend \\
+        \hline
+        Database & PostgreSQL & Persistent relational data storage \\
+        \hline
+        DB Connector & Npgsql EF Core Provider & Connects .NET to PostgreSQL \\
+        \hline
+        Styling & Plain CSS & Frontend page styling \\
+        \hline
+    \end{tabular}
+    \caption{Technology Stack of the Proposed System}
+    \label{tab:techstack}
 \end{table}
 
+\section{Database Design}
 
-Refer the~\cite{sanjay} for the different \LaTeX\ templates.
-%Note9 With a little pactice of this code you will get the idea about how to 
-% use $ $, \[  \],  \\ ,
-% how to insert graphics and  create Tables.
-%Note10: If u are creating table of contents, List of Figures,cross reference, Citation, ...,
-%then run the same code for two times.
+The database is named \texttt{queue\_management} and consists of two tables: \textbf{Admins} and \textbf{Tokens}. The design is intentionally kept simple with minimal fields to serve the core requirements of the system.
+
+\subsection{Admins Table}
+
+The Admins table stores the login credentials for system administrators. It is used by the Admin Login API to authenticate admin users. Table~\ref{tab:admins} shows its structure.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+        \hline
+        Id & SERIAL (Primary Key) & Auto-incremented unique identifier \\
+        \hline
+        Username & VARCHAR(100) NOT NULL & Admin login username \\
+        \hline
+        Password & VARCHAR(100) NOT NULL & Admin login password \\
+        \hline
+    \end{tabular}
+    \caption{Admins Table Structure}
+    \label{tab:admins}
+\end{table}
+
+\subsection{Tokens Table}
+
+The Tokens table stores all queue token records generated by users. Each row represents one customer's token with its current lifecycle status. Table~\ref{tab:tokens} shows the complete structure.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\
+        \hline
+        Id & SERIAL (Primary Key) & Auto-incremented unique identifier \\
+        \hline
+        TokenNumber & INT NOT NULL & Sequential queue number \\
+        \hline
+        CustomerName & VARCHAR(200) NOT NULL & Name of the customer \\
+        \hline
+        Status & VARCHAR(50) NOT NULL & Waiting / Active / Completed \\
+        \hline
+        CreatedAt & TIMESTAMP NOT NULL & Date and time token was created \\
+        \hline
+    \end{tabular}
+    \caption{Tokens Table Structure}
+    \label{tab:tokens}
+\end{table}
+
+\section{Module Design}
+
+The system is divided into the following three functional modules:
+
+\subsection{User Module}
+
+The User Module is accessible to any visitor without login. It provides:
+\begin{itemize}
+    \item A form to enter the customer name and generate a digital queue token.
+    \item Display of the assigned token number and initial status (Waiting).
+    \item A live queue status page showing the currently active token and queue statistics.
+\end{itemize}
+
+\subsection{Admin Module}
+
+The Admin Module is accessible only after authentication. It provides:
+\begin{itemize}
+    \item A login page with username and password verification against the database.
+    \item A dashboard showing all tokens in a tabular format with their status.
+    \item Controls to call the next waiting token, manually complete any token, or reset the entire queue.
+\end{itemize}
+
+\subsection{Dashboard Module}
+
+The Dashboard is embedded in both the Queue Status page and the Admin Dashboard. It shows:
+\begin{itemize}
+    \item Total number of tokens currently in \textbf{Waiting} status.
+    \item The \textbf{Active} token number being currently served.
+    \item Total number of \textbf{Completed} tokens since last reset.
+\end{itemize}
+
+\section{Token Status Flow}
+
+Each token in the system follows a defined lifecycle through three states:
+
+\begin{center}
+\textbf{Waiting} $\rightarrow$ \textbf{Active} $\rightarrow$ \textbf{Completed}
+\end{center}
+
+\begin{itemize}
+    \item When a token is first generated, its status is set to \textbf{Waiting}.
+    \item When the admin calls the next token, the system finds the next token with the lowest number and Waiting status, and sets it to \textbf{Active}. The previously Active token is automatically moved to \textbf{Completed}.
+    \item A token can also be manually set to \textbf{Completed} directly from the admin dashboard without going through the Call Next flow.
+    \item Only one token can be Active at any time.
+\end{itemize}
+
+\section{API Design}
+
+The backend exposes a set of RESTful API endpoints organized under two route prefixes: \texttt{/api/token} for queue operations and \texttt{/api/admin} for authentication. Table~\ref{tab:api} provides the complete API reference.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{HTTP Method} & \textbf{Endpoint} & \textbf{Description} \\
+        \hline
+        POST & /api/token/generate & Generate a new queue token \\
+        \hline
+        GET & /api/token/all & Retrieve all tokens in order \\
+        \hline
+        GET & /api/token/current & Get the currently active token \\
+        \hline
+        GET & /api/token/stats & Get waiting, active, completed counts \\
+        \hline
+        POST & /api/token/next & Call the next waiting token \\
+        \hline
+        PUT & /api/token/complete/\{id\} & Mark a specific token as completed \\
+        \hline
+        DELETE & /api/token/reset & Delete all tokens (reset queue) \\
+        \hline
+        POST & /api/admin/login & Admin username and password login \\
+        \hline
+    \end{tabular}
+    \caption{REST API Endpoints}
+    \label{tab:api}
+\end{table}
+
+\section{Folder Structure}
+
+The project follows a simple and clean folder structure that separates the frontend, backend, and database scripts into distinct directories. The backend follows the Controller-Model-DbContext pattern and the frontend follows a pages-based component structure. Table~\ref{tab:folders} summarizes the main directories.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Directory} & \textbf{Contents} \\
+        \hline
+        backend/Controllers/ & AdminController.cs, TokenController.cs \\
+        \hline
+        backend/Models/ & Admin.cs, Token.cs \\
+        \hline
+        backend/Data/ & AppDbContext.cs \\
+        \hline
+        frontend/src/pages/ & Home, GenerateToken, QueueStatus, AdminLogin, AdminDashboard \\
+        \hline
+        frontend/src/services/ & api.js (all Axios API call functions) \\
+        \hline
+        database/ & setup.sql \\
+        \hline
+    \end{tabular}
+    \caption{Project Folder Structure}
+    \label{tab:folders}
+\end{table}
