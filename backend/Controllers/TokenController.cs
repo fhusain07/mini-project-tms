@@ -45,11 +45,30 @@ public class TokenController : ControllerBase
 
     // GET /api/token/all
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllTokens()
+    public async Task<IActionResult> GetAllTokens([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
     {
-        var tokens = await _db.Tokens
-            .OrderBy(t => t.TokenNumber)
-            .ToListAsync();
+        var query = _db.Tokens.AsQueryable();
+
+        if (startDate.HasValue)
+        {
+            var start = DateTime.SpecifyKind(
+            startDate.Value.Date,
+            DateTimeKind.Utc);
+            query = query.Where(t => t.CreatedAt >= start);
+        }
+
+        if (endDate.HasValue)
+        {
+            var endExclusive = DateTime.SpecifyKind(
+                endDate.Value.Date.AddDays(1),
+                DateTimeKind.Utc
+            );
+
+            query = query.Where(t => t.CreatedAt < endExclusive);
+        }
+        var tokens = await query
+              .OrderBy(t => t.TokenNumber)
+              .ToListAsync();
         return Ok(tokens);
     }
 
@@ -66,8 +85,8 @@ public class TokenController : ControllerBase
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats()
     {
-        var waiting   = await _db.Tokens.CountAsync(t => t.Status == "Waiting");
-        var active    = await _db.Tokens.CountAsync(t => t.Status == "Active");
+        var waiting = await _db.Tokens.CountAsync(t => t.Status == "Waiting");
+        var active = await _db.Tokens.CountAsync(t => t.Status == "Active");
         var completed = await _db.Tokens.CountAsync(t => t.Status == "Completed");
 
         return Ok(new { waiting, active, completed });

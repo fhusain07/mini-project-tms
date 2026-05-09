@@ -1,0 +1,77 @@
+%% refer q31.tex
+
+\chapter{Review of Literature}
+
+This chapter summarizes the main categories of queue management systems and the research gap addressed by the proposed Smart Queue Management System. The review focuses on practical differences in deployment cost, usability, and technical complexity.
+
+\section{Overview of Existing Solutions}
+
+Existing queue management solutions can be grouped into four practical categories.
+
+\subsection{Manual Token Systems}
+
+Manual token systems use printed slips or counter-issued numbers. They are inexpensive to deploy but provide no live status visibility and require customers to remain physically near the service point.
+
+\subsection{Notification-Based Systems}
+
+SMS and mobile-app based systems improve convenience by informing customers when their turn approaches. Their main limitations are network dependency, recurring communication cost, and reliance on personal devices.
+
+\subsection{Cloud Queue Platforms}
+
+Commercial platforms such as Qminder and Qmatic offer analytics, appointments, and multi-branch support. These systems are feature-rich, but the subscription cost and internet dependency make them unsuitable for small organizations that need a local, low-cost solution.
+
+\subsection{Custom Web Applications}
+
+Research prototypes built with PHP, Java, Python, Node.js, and modern JavaScript frameworks show that browser-based queue systems are feasible and affordable. However, many of them either lack a clean user experience or rely on more infrastructure than a small institution needs.
+
+\section{Selected Related Work}
+
+Garg and Shrivastava~\cite{garg2019} presented a hospital token system using PHP and MySQL. Their work demonstrated the usefulness of digital registration but still depended on manual page refreshes for status updates.
+
+Al-Azzawi et al.~\cite{alazzawi2020} implemented a government-service queue platform with Node.js, MongoDB, and WebSocket updates. The system achieved strong responsiveness, but the implementation complexity was relatively high for a local academic project.
+
+Desai et al.~\cite{desai2022} used ReactJS and Node.js for an interactive token and dashboard workflow. Their work is close to the proposed system, but the present project uses ASP.NET Core and PostgreSQL, adds browser voice announcement, and keeps deployment suitable for a local network.
+
+\section{Comparison of Existing Systems}
+
+Table~\ref{tab:comparison} compares the reviewed solutions on the factors most relevant to this project.
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{System} & \textbf{Technology} & \textbf{Real-Time} & \textbf{Admin Panel} & \textbf{Cost} \\
+        \hline
+        Manual Token Machine & Physical Hardware & No & No & Low \\
+        \hline
+        SMS-Based System & Mobile Network & Partial & Limited & Medium \\
+        \hline
+        Qminder / Qmatic & Cloud SaaS & Yes & Yes & High \\
+        \hline
+        OPD System \cite{garg2019} & PHP, MySQL & No & Yes & Free \\
+        \hline
+        WebSocket System \cite{alazzawi2020} & Node.js, MongoDB & Yes & Yes & Free \\
+        \hline
+        Android App \cite{sharma2021} & Android, Firebase & Yes & Limited & Free \\
+        \hline
+        React-Node System \cite{desai2022} & ReactJS, Node.js & Yes & Yes & Free \\
+        \hline
+        \textbf{Proposed System} & \textbf{React, .NET, PostgreSQL} & \textbf{Yes} & \textbf{Yes} & \textbf{Free} \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of Existing Queue Management Systems}
+    \label{tab:comparison}
+\end{table}
+
+\section{Research Gap}
+
+The literature review highlights the following gaps:
+
+\begin{itemize}
+    \item Many low-cost systems still provide a weak user experience for both customers and staff.
+    \item Cloud-first platforms are often too costly or internet-dependent for local deployment.
+    \item Several academic systems are domain-specific and not easily reusable across service counters.
+    \item Few examples combine ReactJS, ASP.NET Core, PostgreSQL, browser voice output, and a simple deployment model in one project.
+\end{itemize}
+
+The proposed \textbf{Smart Queue Management System} addresses these gaps by providing a clean, locally hosted full-stack application with real-time polling, browser voice announcement, and a practical admin dashboard. The design keeps the solution easy to understand, low-cost to run, and directly suitable for academic demonstration as well as small service environments.

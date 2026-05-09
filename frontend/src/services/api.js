@@ -5,7 +5,7 @@ const api = axios.create({
 });
 
 export const generateToken    = (customerName) => api.post('/token/generate', { customerName });
-export const getAllTokens      = ()             => api.get('/token/all');
+export const getAllTokens      = (filters = {}) => api.get('/token/all', { params: filters });
 export const getCurrentToken   = ()             => api.get('/token/current');
 export const getStats          = ()             => api.get('/token/stats');
 export const callNextToken     = ()             => api.post('/token/next');

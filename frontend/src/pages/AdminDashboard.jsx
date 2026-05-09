@@ -10,19 +10,74 @@ import {
 } from '../services/api';
 
 function AdminDashboard() {
-  const [tokens, setTokens]           = useState([]);
-  const [stats, setStats]             = useState({ waiting: 0, active: 0, completed: 0 });
+  const [tokens, setTokens] = useState([]);
+  const [stats, setStats] = useState({
+    waiting: 0,
+    active: 0,
+    completed: 0
+  });
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: ''
+  });
+
   const [currentToken, setCurrentToken] = useState(null);
-  const [message, setMessage]         = useState('');
+  const [message, setMessage] = useState('');
+
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  // Voice Announcement Function
+  const speakToken = (tokenNumber, customerName) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+
+      const announcement = customerName
+        ? `Token Number ${tokenNumber} with customer name ${customerName}`
+        : `Token Number ${tokenNumber}`;
+
+      const speech = new SpeechSynthesisUtterance(
+        announcement
+      );
+
+      speech.lang = 'en-US';
+      speech.rate = 1;
+      speech.pitch = 1;
+      speech.volume = 1;
+
+      // Optional better voice selection
+      const voices = window.speechSynthesis.getVoices();
+
+      const preferredVoice =
+        voices.find((voice) =>
+          voice.name.toLowerCase().includes('google')
+        ) || voices[0];
+
+      if (preferredVoice) {
+        speech.voice = preferredVoice;
+      }
+
+      window.speechSynthesis.speak(speech);
+    }
+  };
+
+  const fetchData = async (activeFilters = filters) => {
     try {
+      const tokenFilters = {};
+
+      if (activeFilters.startDate) {
+        tokenFilters.startDate = activeFilters.startDate;
+      }
+
+      if (activeFilters.endDate) {
+        tokenFilters.endDate = activeFilters.endDate;
+      }
+
       const [tokensRes, statsRes, currentRes] = await Promise.all([
-        getAllTokens(),
+        getAllTokens(tokenFilters),
         getStats(),
         getCurrentToken()
       ]);
+
       setTokens(tokensRes.data);
       setStats(statsRes.data);
       setCurrentToken(currentRes.data);
@@ -36,18 +91,35 @@ function AdminDashboard() {
       navigate('/admin');
       return;
     }
-    fetchData();
-  }, []);
+
+    fetchData(filters);
+  }, [navigate, filters]);
 
   const showMessage = (text) => {
     setMessage(text);
-    setTimeout(() => setMessage(''), 3000);
+
+    setTimeout(() => {
+      setMessage('');
+    }, 3000);
   };
 
   const handleNext = async () => {
     try {
       const res = await callNextToken();
-      showMessage(res.data.message || `Now serving token #${res.data.tokenNumber}`);
+
+      const tokenNumber = res.data.tokenNumber;
+      const customerName = res.data.customerName;
+
+      showMessage(
+        res.data.message ||
+          `Now serving token #${tokenNumber}${customerName ? ` - ${customerName}` : ''}`
+      );
+
+      // Voice Announcement
+      if (tokenNumber) {
+        speakToken(tokenNumber, customerName);
+      }
+
       fetchData();
     } catch {
       showMessage('Error calling next token');
@@ -64,10 +136,18 @@ function AdminDashboard() {
   };
 
   const handleReset = async () => {
-    if (!window.confirm('Reset the entire queue? This will delete all tokens.')) return;
+    if (
+      !window.confirm(
+        'Reset the entire queue? This will delete all tokens.'
+      )
+    )
+      return;
+
     try {
       await resetQueue();
+
       showMessage('Queue has been reset successfully');
+
       fetchData();
     } catch {
       showMessage('Error resetting queue');
@@ -79,57 +159,149 @@ function AdminDashboard() {
     navigate('/admin');
   };
 
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+
+    setFilters((currentFilters) => ({
+      ...currentFilters,
+      [name]: value
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      startDate: '',
+      endDate: ''
+    });
+  };
+
   const getBadgeClass = (status) => {
-    if (status === 'Waiting')   return 'badge badge-waiting';
-    if (status === 'Active')    return 'badge badge-active';
+    if (status === 'Waiting') return 'badge badge-waiting';
+    if (status === 'Active') return 'badge badge-active';
+
     return 'badge badge-completed';
   };
 
   return (
     <div className="container" style={{ maxWidth: '1000px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem'
+        }}
+      >
         <h2>Admin Dashboard</h2>
-        <button className="btn btn-secondary" onClick={handleLogout}>Logout</button>
+
+        <button
+          className="btn btn-secondary"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
       </div>
 
       {/* Alert */}
-      {message && <div className="message message-success">{message}</div>}
+      {message && (
+        <div className="message message-success">
+          {message}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#f59e0b' }}>{stats.waiting}</div>
+          <div
+            className="stat-number"
+            style={{ color: '#f59e0b' }}
+          >
+            {stats.waiting}
+          </div>
+
           <div className="stat-label">Waiting</div>
         </div>
+
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#10b981' }}>{stats.active}</div>
+          <div
+            className="stat-number"
+            style={{ color: '#10b981' }}
+          >
+            {stats.active}
+          </div>
+
           <div className="stat-label">Active</div>
         </div>
+
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#6b7280' }}>{stats.completed}</div>
+          <div
+            className="stat-number"
+            style={{ color: '#6b7280' }}
+          >
+            {stats.completed}
+          </div>
+
           <div className="stat-label">Completed</div>
         </div>
       </div>
 
       {/* Control Panel */}
       <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}
+        >
           <div>
-            <span style={{ fontWeight: '600', marginRight: '0.75rem' }}>Now Serving:</span>
+            <span
+              style={{
+                fontWeight: '600',
+                marginRight: '0.75rem'
+              }}
+            >
+              Now Serving:
+            </span>
+
             {currentToken ? (
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#1d4ed8' }}>
-                #{currentToken.tokenNumber} — {currentToken.customerName}
+              <span
+                style={{
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  color: '#1d4ed8'
+                }}
+              >
+                #{currentToken.tokenNumber} —{' '}
+                {currentToken.customerName}
               </span>
             ) : (
-              <span style={{ color: '#9ca3af' }}>No active token</span>
+              <span style={{ color: '#9ca3af' }}>
+                No active token
+              </span>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn btn-primary" onClick={handleNext}>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.75rem'
+            }}
+          >
+            <button
+              className="btn btn-primary"
+              onClick={handleNext}
+            >
               Call Next Token
             </button>
-            <button className="btn btn-danger" onClick={handleReset}>
+
+            <button
+              className="btn btn-danger"
+              onClick={handleReset}
+            >
               Reset Queue
             </button>
           </div>
@@ -138,10 +310,92 @@ function AdminDashboard() {
 
       {/* Token Table */}
       <div className="card">
-        <h3 style={{ marginBottom: '1rem' }}>All Tokens</h3>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            marginBottom: '1rem'
+          }}
+        >
+          <div>
+            <h3 style={{ marginBottom: '0.35rem' }}>
+              All Tokens
+            </h3>
+
+            <p
+              style={{
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                margin: 0
+              }}
+            >
+              Filter records by creation date.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+              alignItems: 'flex-end'
+            }}
+          >
+            <div style={{ minWidth: '160px' }}>
+              <label htmlFor="startDate">
+                From Date
+              </label>
+
+              <input
+                id="startDate"
+                type="date"
+                name="startDate"
+                value={filters.startDate}
+                onChange={handleFilterChange}
+              />
+            </div>
+
+            <div style={{ minWidth: '160px' }}>
+              <label htmlFor="endDate">
+                To Date
+              </label>
+
+              <input
+                id="endDate"
+                type="date"
+                name="endDate"
+                value={filters.endDate}
+                onChange={handleFilterChange}
+              />
+            </div>
+
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={clearFilters}
+              disabled={
+                !filters.startDate && !filters.endDate
+              }
+            >
+              Clear Filter
+            </button>
+          </div>
+        </div>
+
         {tokens.length === 0 ? (
-          <p style={{ color: '#9ca3af', textAlign: 'center', padding: '2rem 0' }}>
-            No tokens in queue. Users can generate tokens from the main page.
+          <p
+            style={{
+              color: '#9ca3af',
+              textAlign: 'center',
+              padding: '2rem 0'
+            }}
+          >
+            {filters.startDate || filters.endDate
+              ? 'No token records found for the selected date range.'
+              : 'No tokens in queue. Users can generate tokens from the main page.'}
           </p>
         ) : (
           <table>
@@ -154,23 +408,51 @@ function AdminDashboard() {
                 <th>Action</th>
               </tr>
             </thead>
+
             <tbody>
               {tokens.map((token) => (
                 <tr key={token.id}>
-                  <td><strong>#{token.tokenNumber}</strong></td>
+                  <td>
+                    <strong>
+                      #{token.tokenNumber}
+                    </strong>
+                  </td>
+
                   <td>{token.customerName}</td>
+
                   <td>
-                    <span className={getBadgeClass(token.status)}>{token.status}</span>
+                    <span
+                      className={getBadgeClass(
+                        token.status
+                      )}
+                    >
+                      {token.status}
+                    </span>
                   </td>
-                  <td style={{ color: '#6b7280', fontSize: '0.88rem' }}>
-                    {new Date(token.createdAt).toLocaleString()}
+
+                  <td
+                    style={{
+                      color: '#6b7280',
+                      fontSize: '0.88rem'
+                    }}
+                  >
+                    {new Date(
+                      token.createdAt
+                    ).toLocaleString()}
                   </td>
+
                   <td>
-                    {token.status !== 'Completed' && (
+                    {token.status !==
+                      'Completed' && (
                       <button
                         className="btn btn-success"
-                        style={{ padding: '0.3rem 0.8rem', fontSize: '0.85rem' }}
-                        onClick={() => handleComplete(token.id)}
+                        style={{
+                          padding: '0.3rem 0.8rem',
+                          fontSize: '0.85rem'
+                        }}
+                        onClick={() =>
+                          handleComplete(token.id)
+                        }
                       >
                         Complete
                       </button>

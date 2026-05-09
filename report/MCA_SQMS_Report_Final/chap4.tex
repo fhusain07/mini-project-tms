@@ -72,6 +72,8 @@ When the admin triggers the Call Next Token action, the following operations are
     \item If no waiting token exists, a message is returned indicating the queue is empty.
 \end{enumerate}
 
+The API also supports optional \texttt{startDate} and \texttt{endDate} query parameters on the token listing endpoint so that the admin dashboard can review records for a selected time period.
+
 \subsection{Admin Authentication}
 
 Admin authentication is implemented as a simple database lookup. When the admin submits the login form, the backend queries the Admins table for a record where both \texttt{Username} and \texttt{Password} match the provided values. If a match is found, an HTTP 200 OK response with a success message is returned. If not, an HTTP 401 Unauthorized response is returned. On the frontend, a successful login stores an \texttt{isAdmin} flag in the browser's \texttt{localStorage} to maintain the session.
@@ -113,13 +115,52 @@ The Admin Dashboard is the control center for queue management. It is accessible
 \begin{itemize}
     \item Live statistics cards (waiting, active, completed counts).
     \item The currently serving token number and customer name.
+        \item Date range inputs that filter token records by creation date.
     \item A full-width table of all tokens with token number, customer name, status badge, creation time, and a Complete action button.
     \item A ``Call Next Token'' button and a ``Reset Queue'' button in the control panel.
     \item An automatic browser voice announcement for the newly called token.
     \item A ``Logout'' button that clears the \texttt{isAdmin} flag and redirects to the login page.
 \end{itemize}
 
-When the administrator clicks ``Call Next Token'', the frontend invokes the backend API and reads the returned token number from the response. If a token is available, the React page creates a \texttt{SpeechSynthesisUtterance} object and sends it to the browser's \texttt{speechSynthesis} engine. Before speaking, any previous utterance is cancelled so the latest announcement is always heard clearly. The spoken message follows the format ``Token Number X, please come to counter'', making the dashboard useful even when staff or customers are not continuously watching the screen.
+When the administrator clicks ``Call Next Token'', the frontend invokes the backend API and reads the returned token number and customer name from the response. If a token is available, the React page creates a \texttt{SpeechSynthesisUtterance} object and sends it to the browser's \texttt{speechSynthesis} engine. Before speaking, any previous utterance is cancelled so the latest announcement is always heard clearly. The spoken message follows the format ``Token Number X with customer name Y''. The date range filter uses two HTML date inputs and sends the selected values to the backend as query parameters to limit the records shown in the table.
+
+\subsection{Code Highlights}
+
+The following snippets show the practical implementation of the two newly enhanced features.
+
+\begin{lstlisting}[language=C++,caption={Backend token listing with optional date range filtering}]
+[HttpGet("all")]
+public async Task<IActionResult> GetAllTokens(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
+{
+        var query = _db.Tokens.AsQueryable();
+
+        if (startDate.HasValue)
+                query = query.Where(t => t.CreatedAt >= startDate.Value.Date);
+
+        if (endDate.HasValue)
+                query = query.Where(t => t.CreatedAt < endDate.Value.Date.AddDays(1));
+
+        return Ok(await query.OrderBy(t => t.TokenNumber).ToListAsync());
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java,caption={Frontend voice announcement and date filter state}]
+const speakToken = (tokenNumber, customerName) => {
+    const speech = new SpeechSynthesisUtterance(
+        `Token Number ${tokenNumber} with customer name ${customerName}`
+    );
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
+};
+
+const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: ''
+});
+\end{lstlisting}
 
 \section{Testing}
 
@@ -147,7 +188,9 @@ The system was tested manually by performing the following test scenarios to ver
         \hline
         Call next token & Next waiting token set to Active & Pass \\
         \hline
-        Call next token with voice synthesis & Spoken browser announcement for the called token & Pass \\
+        Call next token with voice synthesis & Spoken announcement includes token number and customer name & Pass \\
+        \hline
+        Date range filter on admin dashboard & Only records in selected range are displayed & Pass \\
         \hline
         Call next when queue is empty & Appropriate message displayed & Pass \\
         \hline
@@ -170,41 +213,46 @@ The system successfully demonstrates a complete digital queue management workflo
     \item Tokens are generated instantly with correct sequential numbering starting from 1.
     \item The queue status page updates automatically without requiring a manual browser refresh.
     \item The admin dashboard accurately reflects the real-time state of the queue at all times.
-    \item The browser voice synthesis announces the newly called token immediately from the admin dashboard.
+    \item The browser voice synthesis announces the newly called token together with the customer name.
+    \item Date range filtering allows quick review of token history for a selected period.
     \item The system gracefully handles edge cases such as calling next when no waiting tokens exist.
     \item Database tables are automatically created on first run, simplifying the deployment setup.
     \item The overall system response time is fast, with API responses typically under 100 milliseconds on a local network.
     \item The interface is clean and usable on both desktop and mobile browsers due to responsive CSS.
 \end{itemize}
 
-Figure~\ref{fig:home-page} to Figure~\ref{fig:admin-dashboard} show the major user interfaces developed for the system.
+Figure~\ref{fig:user-interfaces} and Figure~\ref{fig:dashboard-interfaces} show the major user interfaces developed for the system.
 
 \section{System Screenshots}
 
 \begin{figure}[htbp]
     \centering
-     \includegraphics[width=\textwidth]{fig/Home.png}
-    \caption{Home page of the Smart Queue Management System}
-    \label{fig:home-page}
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/Home.png}\\[4pt]
+        \small (a) Home page
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/Get_token.png}\\[4pt]
+        \small (b) Generate Token page
+    \end{minipage}
+    \caption{Customer-side interfaces of the Smart Queue Management System}
+    \label{fig:user-interfaces}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-     \includegraphics[width=\textwidth]{fig/Get_token.png}
-    \caption{Generate Token page used by customers to request a queue number}
-    \label{fig:generate-token-page}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-     \includegraphics[width=\textwidth]{fig/Queue_status.png}
-    \caption{Queue Status page showing the live queue summary and current token}
-    \label{fig:queue-status-page}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-     \includegraphics[width=\textwidth]{fig/Admin_page.png}
-    \caption{Admin Dashboard with queue controls and token management table}
-    \label{fig:admin-dashboard}
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/Queue_status.png}\\[4pt]
+        \small (a) Queue Status page
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/Admin_page.png}\\[4pt]
+        \small (b) Admin Dashboard
+    \end{minipage}
+    \caption{Monitoring and administration interfaces of the Smart Queue Management System}
+    \label{fig:dashboard-interfaces}
 \end{figure}

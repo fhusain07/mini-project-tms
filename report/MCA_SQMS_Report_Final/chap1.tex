@@ -40,7 +40,8 @@ The primary aim of this project is to develop a web-based \textbf{Smart Queue Ma
     \item Displays the real-time status of the queue including the currently serving token.
     \item Provides an admin dashboard to manage the flow of tokens efficiently.
     \item Enables admin to call the next token, complete a token, or reset the queue.
-    \item Provides an audible browser-based announcement when a new token is called.
+    \item Provides an audible browser-based announcement using token number and customer name.
+    \item Supports date-wise filtering of token records for administrative review.
     \item Shows live statistics such as waiting count, active token, and completed count.
 \end{enumerate}
 
@@ -55,6 +56,7 @@ The specific objectives of this project are:
     \item To build a responsive ReactJS frontend with multiple pages for user and admin roles.
     \item To implement real-time queue status updates using a polling mechanism.
     \item To integrate browser voice synthesis for token calling announcements.
+    \item To provide date range based filtering for token records in the admin dashboard.
     \item To demonstrate a working queue management flow from token generation to completion.
 \end{itemize}
 
@@ -64,7 +66,7 @@ The Smart Queue Management System is scoped for local network deployment and cov
 
 \begin{itemize}
     \item \textbf{User Module:} Token generation and queue status viewing for general users.
-    \item \textbf{Admin Module:} Login, token management, queue reset, and browser voice announcement for administrators.
+    \item \textbf{Admin Module:} Login, token management, queue reset, date range filtering, and browser voice announcement for administrators.
     \item \textbf{Dashboard Module:} Live statistics of the queue state visible to all users.
 \end{itemize}
 

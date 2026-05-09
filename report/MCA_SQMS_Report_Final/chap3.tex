@@ -119,7 +119,8 @@ The Admin Module is accessible only after authentication. It provides:
     \item A login page with username and password verification against the database.
     \item A dashboard showing all tokens in a tabular format with their status.
     \item Controls to call the next waiting token, manually complete any token, or reset the entire queue.
-    \item A browser-based voice announcement that speaks the newly called token number to assist staff and customers.
+    \item A date range filter to review token records for a selected period.
+    \item A browser-based voice announcement that speaks the newly called token number together with the customer name.
 \end{itemize}
 
 \subsection{Dashboard Module}
@@ -158,7 +159,7 @@ The backend exposes a set of RESTful API endpoints organized under two route pre
         \hline
         POST & /api/token/generate & Generate a new queue token \\
         \hline
-        GET & /api/token/all & Retrieve all tokens in order \\
+        GET & /api/token/all & Retrieve all tokens in order or by date range \\
         \hline
         GET & /api/token/current & Get the currently active token \\
         \hline
